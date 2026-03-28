@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>NekoGate</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #0a0a0f;
+  --bg2:   #0f0f17;
+  --bg3:   #15151f;
+  --bg4:   #1c1c28;
+  --bg5:   #232333;
+  --red:   #ff3b5c;
+  --red2:  #ff6b84;
+  --gold:  #ffb800;
+  --green: #00e5a0;
+  --text:  #f0f0f8;
+  --dim:   #6b6b88;
+  --dim2:  #9898b8;
+  --border: rgba(255,255,255,0.06);
+  --r: 14px;
+}
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; outline:none; }
+html { scroll-behavior:smooth; }
+body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; }
+::-webkit-scrollbar { width:3px; height:3px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--bg5); border-radius:2px; }
+
+/* ── BG AMBIENT ── */
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(ellipse 80% 40% at 20% 0%, rgba(255,59,92,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 100%, rgba(0,229,160,0.04) 0%, transparent 60%);
+}
+
+/* ── HEADER ── */
+header {
+  position:sticky; top:0; z-index:100;
+  height:56px;
+  background:rgba(10,10,15,0.92);
+  backdrop-filter:blur(24px) saturate(180%);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 16px;
+  gap:12px;
+}
+.logo {
+  font-family:'Syne',sans-serif;
+  font-weight:800; font-size:1.15rem;
+  letter-spacing:-0.5px;
+  display:flex; align-items:center; gap:6px;
+  cursor:pointer; user-select:none; flex-shrink:0;
+}
+.logo-n { color:var(--red); }
+.logo-rest { color:var(--text); }
+
+.search-bar {
+  flex:1; max-width:340px;
+  display:flex; align-items:center; gap:8px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:50px;
+  padding:8px 14px;
+  transition:all .2s;
+}
+.search-bar:focus-within { border-color:rgba(255,59,92,0.4); background:rgba(255,59,92,0.05); }
+.search-bar input {
+  background:none; border:none; color:var(--text);
+  font-family:'DM Sans',sans-serif; font-size:0.85rem;
+  width:100%;
+}
+.search-bar input::placeholder { color:var(--dim); }
+.search-bar span { color:var(--dim); font-size:0.9rem; flex-shrink:0; cursor:pointer; transition:color .2s; }
+.search-bar span:hover { color:var(--red); }
+
+.hbtn {
+  width:36px; height:36px; border-radius:10px;
+  background:var(--bg3); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:0.9rem; color:var(--dim);
+  transition:all .2s; flex-shrink:0;
+}
+.hbtn:hover { border-color:rgba(255,59,92,0.3); color:var(--red); }
+
+/* ── MAIN ── */
+main { position:relative; z-index:1; padding:0 14px 80px; max-width:1280px; margin:0 auto; }
+
+/* ── PAGES ── */
+.page { display:none; animation:fadeUp .3s ease both; }
+.page.active { display:block; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+
+/* ── SECTION HEADER ── */
+.sh { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding-top:20px; }
+.sh-title {
+  font-family:'Syne',sans-serif; font-size:0.75rem; font-weight:700;
+  letter-spacing:3px; text-transform:uppercase; color:var(--dim2);
+  display:flex; align-items:center; gap:8px;
+}
+.sh-title::before { content:''; width:3px; height:14px; background:var(--red); border-radius:2px; }
+.sh-more { font-size:0.72rem; color:var(--red); font-weight:600; cursor:pointer; }
+
+/* ── FILTER PILLS ── */
+.pills { display:flex; gap:7px; overflow-x:auto; padding:14px 0 4px; scrollbar-width:none; }
+.pills::-webkit-scrollbar { display:none; }
+.pill {
+  padding:7px 16px; border-radius:50px;
+  border:1px solid var(--border); background:var(--bg3);
+  font-size:0.78rem; font-weight:600; color:var(--dim2);
+  cursor:pointer; white-space:nowrap; flex-shrink:0;
+  transition:all .2s;
+}
+.pill:hover { border-color:rgba(255,59,92,0.3); color:var(--text); }
+.pill.on { background:var(--red); border-color:var(--red); color:#fff; box-shadow:0 4px 16px rgba(255,59,92,0.3); }
+
+/* ── ANIME GRID ── */
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:12px; margin-bottom:32px; }
+
+/* skeleton */
+.skel { background:var(--bg3); border-radius:var(--r); overflow:hidden; border:1px solid var(--border); animation:pulse 1.4s ease-in-out infinite; }
+.skel .skt { aspect-ratio:2/3; background:var(--bg4); }
+.skel .skl { height:11px; background:var(--bg4); border-radius:3px; margin:9px 9px 5px; }
+.skel .skl2 { height:9px; background:var(--bg4); border-radius:3px; margin:0 9px 10px; width:60%; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+/* card */
+.card {
+  background:var(--bg3); border-radius:var(--r);
+  overflow:hidden; border:1px solid var(--border);
+  cursor:pointer; position:relative;
+  transition:transform .28s cubic-bezier(.16,1,.3,1), box-shadow .28s, border-color .28s;
+  animation:fadeUp .35s ease both;
+}
+.card:hover { transform:translateY(-5px) scale(1.02); border-color:rgba(255,59,92,0.35); box-shadow:0 12px 32px rgba(0,0,0,.5),0 0 16px rgba(255,59,92,.1); }
+.card-img { aspect-ratio:2/3; overflow:hidden; position:relative; background:var(--bg4); }
+.card-img img { width:100%; height:100%; object-fit:cover; transition:transform .5s; display:block; }
+.card:hover .card-img img { transform:scale(1.07); }
+.card-grad { position:absolute; inset:0; background:linear-gradient(to top,rgba(10,10,15,.97) 0%,rgba(10,10,15,.3) 40%,transparent 65%); opacity:0; transition:opacity .3s; }
+.card:hover .card-grad { opacity:1; }
+.card-play { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) scale(.6); width:40px; height:40px; background:var(--red); border-radius:50%; display:flex; align-items:center; justify-content:center; opacity:0; transition:all .25s; font-size:1rem; }
+.card:hover .card-play { opacity:1; transform:translate(-50%,-50%) scale(1); }
+.card-ep { position:absolute; top:7px; right:7px; background:rgba(0,0,0,.7); backdrop-filter:blur(6px); padding:2px 7px; border-radius:6px; font-size:0.62rem; font-weight:700; color:var(--gold); }
+.card-score { position:absolute; top:7px; left:7px; background:rgba(0,0,0,.7); backdrop-filter:blur(6px); padding:2px 7px; border-radius:6px; font-size:0.62rem; font-weight:700; color:var(--green); display:none; }
+.card:hover .card-score { display:flex; align-items:center; gap:2px; }
+.card-info { padding:8px 9px 10px; }
+.card-title { font-size:0.78rem; font-weight:600; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:3px; }
+.card-type { font-size:0.65rem; color:var(--dim); font-weight:500; }
+
+/* ── DETAIL PAGE ── */
+#page-detail { padding-top:0; }
+.detail-hero {
+  position:relative; min-height:260px;
+  display:flex; align-items:flex-end;
+  padding:20px; gap:16px;
+  border-radius:0 0 20px 20px;
+  overflow:hidden; margin:0 -14px 20px;
+}
+.detail-hero-bg {
+  position:absolute; inset:0;
+  background-size:cover; background-position:center;
+  filter:blur(12px) brightness(.3) saturate(1.4);
+  transform:scale(1.1);
+}
+.detail-poster {
+  width:110px; height:155px; border-radius:12px;
+  object-fit:cover; border:2px solid rgba(255,255,255,.15);
+  position:relative; z-index:1; flex-shrink:0;
+  box-shadow:0 8px 24px rgba(0,0,0,.6);
+}
+.detail-info { position:relative; z-index:1; flex:1; min-width:0; }
+.detail-tag { font-size:0.62rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--red); margin-bottom:5px; }
+.detail-title { font-family:'Syne',sans-serif; font-size:1.15rem; font-weight:800; line-height:1.2; margin-bottom:6px; }
+.detail-meta { font-size:0.75rem; color:rgba(255,255,255,.5); display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.detail-chip { padding:3px 10px; border-radius:50px; background:rgba(255,255,255,.08); font-size:0.68rem; font-weight:600; }
+.back-btn {
+  position:absolute; top:14px; left:14px; z-index:2;
+  width:34px; height:34px; border-radius:50%;
+  background:rgba(0,0,0,.5); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.12);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; color:rgba(255,255,255,.7); font-size:1rem;
+  transition:all .2s;
+}
+.back-btn:hover { background:rgba(255,59,92,.3); color:#fff; }
+
+.detail-desc {
+  font-size:0.83rem; color:var(--dim2); line-height:1.75;
+  padding:0 4px; margin-bottom:20px;
+  display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden;
+}
+.detail-desc.expanded { -webkit-line-clamp:unset; }
+.read-more { font-size:0.75rem; color:var(--red); font-weight:600; cursor:pointer; margin-bottom:20px; display:inline-block; }
+
+.eps-header { font-family:'Syne',sans-serif; font-size:0.72rem; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--dim); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.eps-header::before { content:''; width:3px; height:13px; background:var(--red); border-radius:2px; }
+
+.eps-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:8px; margin-bottom:30px; }
+.ep-btn {
+  padding:10px 6px; border-radius:10px;
+  background:var(--bg3); border:1px solid var(--border);
+  text-align:center; cursor:pointer;
+  font-size:0.78rem; font-weight:700;
+  transition:all .2s;
+  display:flex; flex-direction:column; gap:2px; align-items:center;
+}
+.ep-btn:hover { background:var(--red); border-color:var(--red); color:#fff; transform:translateY(-2px); }
+.ep-btn .ep-num { font-size:0.9rem; font-weight:800; }
+.ep-btn .ep-date { font-size:0.58rem; color:var(--dim); }
+.ep-btn:hover .ep-date { color:rgba(255,255,255,.7); }
+
+/* ── WATCH PAGE ── */
+#page-watch { padding-top:12px; }
+.watch-back {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 16px; border-radius:50px;
+  background:var(--bg3); border:1px solid var(--border);
+  font-size:0.8rem; font-weight:600; cursor:pointer;
+  margin-bottom:16px; transition:all .2s; color:var(--text);
+}
+.watch-back:hover { border-color:rgba(255,59,92,.3); color:var(--red); }
+
+.player-wrap {
+  background:var(--bg2); border-radius:var(--r);
+  border:1px solid var(--border);
+  overflow:hidden; margin-bottom:16px;
+  aspect-ratio:16/9; position:relative;
+}
+.player-wrap iframe { width:100%; height:100%; border:none; display:block; }
+.player-loading {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:12px;
+  background:var(--bg2); color:var(--dim);
+}
+.spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--red); border-radius:50%; animation:spin .7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.watch-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; margin-bottom:4px; }
+.watch-ep-name { font-size:0.8rem; color:var(--dim2); margin-bottom:16px; }
+
+.servers-label { font-size:0.68rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--dim); margin-bottom:10px; }
+.servers { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+.srv-btn {
+  padding:8px 16px; border-radius:50px;
+  background:var(--bg3); border:1px solid var(--border);
+  font-size:0.78rem; font-weight:700; cursor:pointer;
+  transition:all .2s; color:var(--dim2);
+}
+.srv-btn:hover { border-color:rgba(255,59,92,.3); color:var(--text); }
+.srv-btn.on { background:var(--red); border-color:var(--red); color:#fff; }
+
+.error-box {
+  background:rgba(255,59,92,.08); border:1px solid rgba(255,59,92,.2);
+  border-radius:var(--r); padding:16px; text-align:center;
+  color:var(--red2); font-size:0.83rem; line-height:1.6;
+}
+
+/* ── SEARCH PAGE ── */
+#page-search .search-big {
+  display:flex; gap:10px; margin:16px 0 20px;
+}
+#page-search .search-big input {
+  flex:1; padding:13px 18px;
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:var(--r); color:var(--text);
+  font-family:'DM Sans',sans-serif; font-size:0.92rem;
+  transition:border-color .2s;
+}
+#page-search .search-big input:focus { border-color:rgba(255,59,92,.4); }
+#page-search .search-big button {
+  padding:13px 20px; border-radius:var(--r);
+  background:var(--red); border:none; color:#fff;
+  font-size:1rem; cursor:pointer; transition:all .2s;
+  box-shadow:0 4px 14px rgba(255,59,92,.3);
+}
+#page-search .search-big button:hover { transform:scale(1.05); }
+
+/* ── BOTTOM NAV ── */
+.bnav {
+  position:fixed; bottom:0; left:0; right:0; z-index:100;
+  background:rgba(10,10,15,0.97);
+  backdrop-filter:blur(24px);
+  border-top:1px solid var(--border);
+  height:60px;
+  display:flex; padding-bottom:env(safe-area-inset-bottom);
+}
+.bnav-btn {
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:3px; cursor:pointer; border:none; background:none;
+  color:var(--dim); font-family:'DM Sans',sans-serif;
+  font-size:0.58rem; font-weight:700; letter-spacing:.8px; text-transform:uppercase;
+  transition:all .2s; border-top:2px solid transparent;
+  padding:6px 0 2px;
+}
+.bnav-btn .bico { font-size:1.2rem; line-height:1; transition:transform .2s; }
+.bnav-btn.on { color:var(--red); border-top-color:var(--red); }
+.bnav-btn.on .bico { transform:scale(1.15); }
+.bnav-btn:active { transform:scale(.92); }
+
+/* ── STATUS BOXES ── */
+.empty-state { padding:60px 20px; text-align:center; color:var(--dim); }
+.empty-state .ei { font-size:3rem; margin-bottom:12px; }
+.empty-state .et { font-size:0.9rem; font-weight:600; color:var(--text); margin-bottom:4px; }
+.empty-state .es { font-size:0.78rem; }
+
+.loading-state { padding:60px 20px; text-align:center; }
+.loading-state .spinner { margin:0 auto 12px; }
+.loading-state p { font-size:0.8rem; color:var(--dim); }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:76px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--bg4); border:1px solid var(--border);
+  border-radius:50px; padding:10px 20px;
+  font-size:0.82rem; font-weight:600;
+  z-index:200; opacity:0; transition:all .3s;
+  white-space:nowrap; pointer-events:none;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media(max-width:480px) {
+  .grid { grid-template-columns:repeat(3,1fr); gap:9px; }
+  .eps-grid { grid-template-columns:repeat(auto-fill,minmax(64px,1fr)); }
+}
+@media(max-width:360px) {
+  .grid { grid-template-columns:repeat(2,1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo" onclick="goHome()">
+    <span class="logo-n">Neko</span><span class="logo-rest">Gate</span>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="hSearch" placeholder="Cari anime..." onkeydown="if(event.key==='Enter')doSearch()">
+    <span onclick="doSearch()">🔍</span>
+  </div>
+  <div class="hbtn" onclick="switchPage('search')" title="Search">⚡</div>
+</header>
+
+<!-- PAGES -->
+<main>
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="page-home">
+    <div class="pills" id="home-pills">
+      <div class="pill on" onclick="loadLatest(1,this)">🔥 Terbaru</div>
+      <div class="pill" onclick="loadLatest(2,this)">📄 Hal. 2</div>
+      <div class="pill" onclick="loadLatest(3,this)">📄 Hal. 3</div>
+      <div class="pill" onclick="loadLatest(4,this)">📄 Hal. 4</div>
+      <div class="pill" onclick="loadLatest(5,this)">📄 Hal. 5</div>
+    </div>
+    <div class="sh">
+      <div class="sh-title">Update Terbaru</div>
+    </div>
+    <div class="grid" id="home-grid"></div>
+  </div>
+
+  <!-- SEARCH PAGE -->
+  <div class="page" id="page-search">
+    <div class="search-big">
+      <input type="text" id="searchInput" placeholder="Ketik judul anime...">
+      <button onclick="doSearch()">🔍</button>
+    </div>
+    <div id="search-results">
+      <div class="empty-state">
+        <div class="ei">🔍</div>
+        <div class="et">Cari Anime</div>
+        <div class="es">Ketik judul di atas dan tekan Enter</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL PAGE -->
+  <div class="page" id="page-detail">
+    <div id="detail-content"></div>
+  </div>
+
+  <!-- WATCH PAGE -->
+  <div class="page" id="page-watch">
+    <div id="watch-content"></div>
+  </div>
+
+</main>
+
+<!-- BOTTOM NAV -->
+<div class="bnav">
+  <button class="bnav-btn on" id="bn-home" onclick="switchPage('home')">
+    <span class="bico">🏠</span>HOME
+  </button>
+  <button class="bnav-btn" id="bn-search" onclick="switchPage('search')">
+    <span class="bico">🔍</span>CARI
+  </button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════
+const API = 'https://neko-gate.vercel.app';
+let currentPage = 'home';
+let history = [];
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+loadLatest(1, document.querySelector('.pill.on'));
+
+// ═══════════════════════════════════════════
+//  PAGE SWITCHING
+// ═══════════════════════════════════════════
+function switchPage(name) {
+  currentPage = name;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('on'));
+  const nb = document.getElementById('bn-'+name);
+  if(nb) nb.classList.add('on');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function goHome() {
+  switchPage('home');
+}
+
+function goBack() {
+  if(history.length > 0) {
+    const prev = history.pop();
+    switchPage(prev);
+  } else {
+    switchPage('home');
+  }
+}
+
+// ═══════════════════════════════════════════
+//  HOME — LATEST ANIME
+// ═══════════════════════════════════════════
+async function loadLatest(page, el) {
+  // Active pill
+  document.querySelectorAll('#home-pills .pill').forEach(p => p.classList.remove('on'));
+  el?.classList.add('on');
+
+  const grid = document.getElementById('home-grid');
+  showSkeleton(grid, 18);
+
+  try {
+    const r = await fetch(`${API}/api/latest?page=${page}`);
+    const data = await r.json();
+    if(!data.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="ei">😕</div><div class="et">Tidak ada data</div></div>`;
+      return;
+    }
+    grid.innerHTML = data.map((a,i) => cardHTML(a, i)).join('');
+  } catch(e) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="ei">⚠️</div><div class="et">Gagal memuat</div><div class="es">${e.message}</div></div>`;
+  }
+}
+
+// ═══════════════════════════════════════════
+//  SEARCH
+// ═══════════════════════════════════════════
+function doSearch() {
+  const q = (document.getElementById('searchInput')?.value || document.getElementById('hSearch')?.value || '').trim();
+  if(!q) return;
+  document.getElementById('searchInput').value = q;
+  document.getElementById('hSearch').value = q;
+  switchPage('search');
+  performSearch(q);
+}
+
+async function performSearch(q) {
+  const res = document.getElementById('search-results');
+  res.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Mencari "${esc(q)}"...</p></div>`;
+
+  try {
+    const r = await fetch(`${API}/api/search?q=${encodeURIComponent(q)}`);
+    const data = await r.json();
+
+    if(!data.length) {
+      res.innerHTML = `<div class="empty-state"><div class="ei">😕</div><div class="et">Tidak ditemukan</div><div class="es">Coba kata kunci lain</div></div>`;
+      return;
+    }
+    res.innerHTML = `
+      <div class="sh"><div class="sh-title">${data.length} Hasil</div></div>
+      <div class="grid">${data.map((a,i) => cardHTML(a,i)).join('')}</div>`;
+  } catch(e) {
+    res.innerHTML = `<div class="empty-state"><div class="ei">⚠️</div><div class="et">Gagal mencari</div><div class="es">${e.message}</div></div>`;
+  }
+}
+
+document.getElementById('searchInput').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
+document.getElementById('hSearch').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
+
+// ═══════════════════════════════════════════
+//  CARD HTML
+// ═══════════════════════════════════════════
+function cardHTML(a, i) {
+  const title = esc(a.title || '—');
+  const img = a.image || '';
+  const ep = a.episode ? `Ep ${a.episode}` : (a.type || '');
+  const score = a.score ? `⭐ ${a.score}` : '';
+  const url = encodeURIComponent(a.url || '');
+  return `
+  <div class="card" style="animation-delay:${i*.03}s" onclick="openDetail('${url}','${title}','${encodeURIComponent(img)}')">
+    <div class="card-img">
+      ${img ? `<img src="${img}" alt="${title}" loading="lazy" onerror="this.src='';this.style.display='none'">` : `<div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:var(--bg4)">🎌</div>`}
+      <div class="card-grad"></div>
+      <div class="card-play">▶</div>
+      ${ep ? `<div class="card-ep">${ep}</div>` : ''}
+      ${score ? `<div class="card-score">${score}</div>` : ''}
+    </div>
+    <div class="card-info">
+      <div class="card-title">${title}</div>
+      ${a.type ? `<div class="card-type">${a.type}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+//  DETAIL PAGE
+// ═══════════════════════════════════════════
+async function openDetail(urlEnc, titleEnc, imgEnc) {
+  history.push(currentPage);
+  switchPage('detail');
+  const url = decodeURIComponent(urlEnc);
+  const title = decodeURIComponent(titleEnc);
+  const img = decodeURIComponent(imgEnc);
+  const content = document.getElementById('detail-content');
+
+  content.innerHTML = `<div class="loading-state" style="padding-top:40px"><div class="spinner"></div><p>Memuat detail...</p></div>`;
+
+  try {
+    const r = await fetch(`${API}/api/detail?url=${encodeURIComponent(url)}`);
+    const data = await r.json();
+
+    const poster = data.image || img;
+    const eps = data.episodes || [];
+    const info = data.info || {};
+
+    const chips = [
+      info.status, info.genre, info.type, info.studio
+    ].filter(Boolean).slice(0,4);
+
+    content.innerHTML = `
+      <div class="detail-hero">
+        <div class="detail-hero-bg" style="background-image:url('${poster}')"></div>
+        <div class="back-btn" onclick="goBack()">←</div>
+        ${poster ? `<img class="detail-poster" src="${poster}" alt="${esc(data.title||title)}" onerror="this.style.display='none'">` : ''}
+        <div class="detail-info">
+          <div class="detail-tag">SAMEHADAKU</div>
+          <div class="detail-title">${esc(data.title || title)}</div>
+          <div class="detail-meta">
+            ${chips.map(c=>`<span class="detail-chip">${esc(c)}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      ${data.description ? `
+        <div class="detail-desc" id="ddesc">${esc(data.description.slice(0,300))}</div>
+        ${data.description.length > 300 ? `<span class="read-more" onclick="expandDesc()">Baca selengkapnya ▼</span>` : ''}
+      ` : ''}
+
+      ${eps.length ? `
+        <div class="eps-header">Episode (${eps.length})</div>
+        <div class="eps-grid">
+          ${eps.map((ep,i) => `
+            <div class="ep-btn" onclick="openWatch('${encodeURIComponent(ep.url)}','${encodeURIComponent(ep.title)}','${encodeURIComponent(data.title||title)}')">
+              <div class="ep-num">${eps.length - i}</div>
+              ${ep.date ? `<div class="ep-date">${ep.date.split(' ')[0]||''}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      ` : `<div class="empty-state"><div class="ei">📭</div><div class="et">Episode tidak tersedia</div></div>`}
+    `;
+  } catch(e) {
+    content.innerHTML = `
+      <div class="back-btn" style="position:relative;margin:20px 0 0 4px;display:inline-flex" onclick="goBack()">← Kembali</div>
+      <div class="empty-state"><div class="ei">⚠️</div><div class="et">Gagal memuat detail</div><div class="es">${e.message}</div></div>`;
+  }
+}
+
+function expandDesc() {
+  const el = document.getElementById('ddesc');
+  el?.classList.add('expanded');
+  document.querySelector('.read-more')?.remove();
+}
+
+// ═══════════════════════════════════════════
+//  WATCH PAGE
+// ═══════════════════════════════════════════
+async function openWatch(urlEnc, epTitleEnc, animeTitleEnc) {
+  history.push(currentPage);
+  switchPage('watch');
+  const url = decodeURIComponent(urlEnc);
+  const epTitle = decodeURIComponent(epTitleEnc);
+  const animeTitle = decodeURIComponent(animeTitleEnc);
+  const content = document.getElementById('watch-content');
+
+  content.innerHTML = `
+    <div class="watch-back" onclick="goBack()">← Kembali</div>
+    <div class="watch-title">${esc(animeTitle)}</div>
+    <div class="watch-ep-name">${esc(epTitle)}</div>
+    <div class="player-wrap">
+      <div class="player-loading"><div class="spinner"></div><p>Mengambil link stream...</p></div>
+    </div>
+    <div class="servers-label">SERVER</div>
+    <div class="servers" id="servers-list"><div style="color:var(--dim);font-size:.8rem">Memuat server...</div></div>
+  `;
+
+  try {
+    const r = await fetch(`${API}/api/watch?url=${encodeURIComponent(url)}`);
+    const data = await r.json();
+    const streams = data.streams || [];
+
+    if(!streams.length) {
+      content.querySelector('.player-wrap').innerHTML = `
+        <div class="error-box">
+          ⚠️ Stream belum tersedia untuk episode ini.<br>
+          <small>Coba beberapa saat lagi atau cek di platform lain.</small><br><br>
+          <a href="https://v2.samehadaku.how${url.includes('samehadaku') ? '' : url}" target="_blank" style="color:var(--red);font-weight:700">Buka di Samehadaku ↗</a>
+        </div>`;
+      document.getElementById('servers-list').innerHTML = '';
+      return;
+    }
+
+    // Load first stream
+    loadStream(streams[0].url, content.querySelector('.player-wrap'));
+
+    // Server buttons
+    document.getElementById('servers-list').innerHTML = streams.map((s,i) => `
+      <div class="srv-btn ${i===0?'on':''}" onclick="selectServer(this,'${encodeURIComponent(s.url)}')">${esc(s.server)}</div>
+    `).join('');
+
+  } catch(e) {
+    content.querySelector('.player-wrap').innerHTML = `
+      <div class="error-box">
+        ⚠️ Gagal mengambil stream.<br><small>${e.message}</small><br><br>
+        <a href="${url}" target="_blank" style="color:var(--red);font-weight:700">Buka di Samehadaku ↗</a>
+      </div>`;
+    document.getElementById('servers-list').innerHTML = '';
+  }
+}
+
+function loadStream(iframeUrl, wrap) {
+  wrap.innerHTML = `<iframe src="${iframeUrl}" allowfullscreen allow="autoplay; fullscreen; picture-in-picture" referrerpolicy="no-referrer"></iframe>`;
+}
+
+function selectServer(el, urlEnc) {
+  document.querySelectorAll('.srv-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  const wrap = document.querySelector('.player-wrap');
+  wrap.innerHTML = `<div class="player-loading"><div class="spinner"></div><p>Memuat server...</p></div>`;
+  setTimeout(() => loadStream(decodeURIComponent(urlEnc), wrap), 300);
+}
+
+// ═══════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════
+function showSkeleton(grid, n) {
+  grid.innerHTML = Array.from({length:n}).map(()=>`
+    <div class="skel"><div class="skt"></div><div class="skl"></div><div class="skl2"></div></div>
+  `).join('');
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape' && currentPage !== 'home') goBack();
+});
+</script>
+</body>
+</html>
